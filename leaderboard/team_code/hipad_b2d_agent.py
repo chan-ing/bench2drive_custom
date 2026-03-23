@@ -650,7 +650,11 @@ class SparseAgent(autonomous_agent.AutonomousAgent):
         #vlm_traj = np.array(outputs[0]['img_bbox']['vlm_traj'], dtype=np.float32)
         
         # kclee VLM_LOGITS_TRAJ
-        vlm_traj = np.array(outputs[0]['img_bbox']['vlm_logit_traj'], dtype=np.float32)
+        # vlm_traj = np.array(outputs[0]['img_bbox']['vlm_logit_traj'], dtype=np.float32)
+        if self.use_action_token :
+             vlm_traj = np.array(outputs[0]['img_bbox']['vlm_logit_traj'], dtype=np.float32)
+        else:
+            vlm_traj = np.array(outputs[0]['img_bbox']['vlm_traj'], dtype=np.float32)
 
         if (
             not isinstance(vlm_traj, np.ndarray)
