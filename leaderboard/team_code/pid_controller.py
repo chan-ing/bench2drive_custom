@@ -107,6 +107,8 @@ class PIDController(object):
             aim_last = spatial_waypoint[-1] - spatial_waypoint[-2]
 
         angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
+        if aim[0] == 0 and aim[1] == 0:
+            angle = 0.0
         angle_last = np.degrees(np.pi / 2 - np.arctan2(aim_last[1], aim_last[0])) / 90
         angle_target = np.degrees(np.pi / 2 - np.arctan2(target[1], target[0])) / 90
 
