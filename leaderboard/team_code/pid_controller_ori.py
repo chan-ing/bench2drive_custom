@@ -75,33 +75,20 @@ class PIDController(object):
 
         if spatial_waypoint is None:
             aim = waypoints[0]
-            desired_speed = 0.75*np.linalg.norm(
-                    waypoints[0]) *2 + 0.25*np.linalg.norm(
-                    waypoints[1] - waypoints[0])*2
-            # for i in range(num_pairs):
-            #     # magnitude of vectors, used for speed
-            #     desired_speed += (np.linalg.norm(waypoints[i+1] - waypoints[i]) / self.waypoint_time) / num_pairs
+            for i in range(num_pairs):
+                # magnitude of vectors, used for speed
+                desired_speed += (np.linalg.norm(waypoints[i+1] - waypoints[i]) / self.waypoint_time) / num_pairs
             
-            self.aim_dist = 3.5 # speed * 1
+            self.aim_dist = speed * 1
 
             for i in range(num_pairs):
-                norm = np.linalg.norm((waypoints[i]))
-                if abs(self.aim_dist-best_norm) > abs(self.aim_dist-norm):
-                    aim = waypoints[i]
-                    best_norm = norm
                 # norm of vector midpoints, used for steering
                 norm = np.linalg.norm((waypoints[i+1] + waypoints[i]) / 2.0)
                 if abs(self.aim_dist-best_norm) > abs(self.aim_dist-norm):
-                    aim = (waypoints[i+1] + waypoints[i]) / 2.0
+                    aim = waypoints[i]
                     best_norm = norm
-                # norm of vector midpoints, used for steering
-                # norm = np.linalg.norm((waypoints[i+1] + waypoints[i]) / 2.0)
-                # if abs(self.aim_dist-best_norm) > abs(self.aim_dist-norm):
-                #     aim = waypoints[i]
-                #     best_norm = norm
 
             aim_last = waypoints[-1] - waypoints[-2]
-            
         else:
             aim = spatial_waypoint[0]
             for i in range(num_pairs):
@@ -120,13 +107,9 @@ class PIDController(object):
 
             aim_last = spatial_waypoint[-1] - spatial_waypoint[-2]
 
-        if aim[1] <= 0.02: 
-            angle = np.array(0.0)
-        else: 
-            angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
-        # angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
+        angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
         if aim[0] == 0 and aim[1] == 0:
-            angle = np.array(0.0)
+            angle = 0.0
         angle_last = np.degrees(np.pi / 2 - np.arctan2(aim_last[1], aim_last[0])) / 90
         angle_target = np.degrees(np.pi / 2 - np.arctan2(target[1], target[0])) / 90
 

@@ -3,11 +3,11 @@ BASE_PORT=20600
 BASE_TM_PORT=40600
 IS_BENCH2DRIVE=True
 
-CONFIG_NAME=hipad_b2d_stage3_tiny-official_ACT-Quant-regress-resume
+CONFIG_NAME=hipad_b2d_stage3_tiny-official
 
 TEAM_AGENT=bench2drive/leaderboard/team_code/hipad_b2d_agent.py
-TEAM_CONFIG=/mnt/sda/HiP-AD-custom/projects/configs/hipad_b2d_stage3_tiny-official_ACT-Quant-regress-resume.py+\
-/mnt/sda/HiP-AD-custom/eval_ckpts/hipad_b2d_stage3_tiny-official_ACT-Quant-regress-resume/latest.pth
+TEAM_CONFIG=/mnt/sdc/hc/HiP-AD-custom/projects/configs/hipad_b2d_stage3_tiny-official.py+\
+/mnt/sdc/hc/HiP-AD-custom/eval_ckpts/hipad_b2d_stage3_tiny-official/latest.pth
 
 PLANNER_TYPE=traj
 BASE_ROUTES=bench2drive/leaderboard/data/splits4/bench2drive220
@@ -42,7 +42,7 @@ for ((i=0; i<$length; i++ )); do
     echo -e "GPU_RANK: $GPU_RANK"
     echo -e "bash bench2drive/leaderboard/scripts/run_evaluation.sh $PORT $TM_PORT $IS_BENCH2DRIVE $ROUTES $TEAM_AGENT $TEAM_CONFIG $CHECKPOINT_ENDPOINT $SAVE_PATH $PLANNER_TYPE $GPU_RANK"
     echo -e "\033[36m***********************************************************************************\033[0m"
-    bash -e bench2drive/leaderboard/scripts/run_evaluation.sh $PORT $TM_PORT $IS_BENCH2DRIVE $ROUTES $TEAM_AGENT $TEAM_CONFIG $CHECKPOINT_ENDPOINT $SAVE_PATH $PLANNER_TYPE $GPU_RANK 2>&1 >> ${BASE_CHECKPOINT_ENDPOINT}_${TASK_LIST[$i]}.log &
+    bash -e bench2drive/leaderboard/scripts/run_evaluation.sh $PORT $TM_PORT $IS_BENCH2DRIVE $ROUTES $TEAM_AGENT $TEAM_CONFIG $CHECKPOINT_ENDPOINT $SAVE_PATH $PLANNER_TYPE $GPU_RANK # 2>&1 >> ${BASE_CHECKPOINT_ENDPOINT}_${TASK_LIST[$i]}.log &
     sleep 5
 done
 wait
