@@ -562,7 +562,7 @@ class SparseAgent(autonomous_agent.AutonomousAgent):
 
         # control
         # breakpoint()
-        plan_temp_name = 'plan_temp_2hz'  # 'plan_temp_5hz'
+        plan_temp_name = 'plan_speed_2hz'  # 'plan_temp_5hz'
         plan_spat_name = 'plan_spat_2m'
         
         # breakpoint()
@@ -577,7 +577,7 @@ class SparseAgent(autonomous_agent.AutonomousAgent):
         #     outputs[0]['img_bbox']['spatial_planning'] = outputs[0]['img_bbox'][plan_spat_name]
 
         steer_traj, throttle_traj, brake_traj, metadata_traj = self.pidcontroller.control_pid(
-            pred_temp_traj, None, ego_speed, target_point)
+            pred_temp_traj, pred_spat_traj, ego_speed, target_point)
 
         if brake_traj < 0.05: brake_traj = 0.0
         if throttle_traj > brake_traj: brake_traj = 0.0
@@ -964,7 +964,7 @@ class SparseAgent(autonomous_agent.AutonomousAgent):
 
             # draw bev target point
             bev_coord = self.convert_bev_coord(target_point, bev_dict)
-            cv2.circle(bev_img, (int(bev_coord[0]), int(bev_coord[1])), 3, (0, 105, 120), 2)
+            cv2.circle(bev_img, (int(bev_coord[0]), int(bev_coord[1])), 6, (255, 0, 120), 4)
 
         # text and resize
         cmd_str = str(tick_data['command']).split('.')[-1]

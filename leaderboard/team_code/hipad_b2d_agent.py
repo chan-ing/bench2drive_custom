@@ -1112,7 +1112,7 @@ class SparseAgent(autonomous_agent.AutonomousAgent):
 
             # draw bev target point
             bev_coord = self.convert_bev_coord(target_point, bev_dict)
-            cv2.circle(bev_img, (int(bev_coord[0]), int(bev_coord[1])), 3, (0, 105, 120), 2)
+            cv2.circle(bev_img, (int(bev_coord[0]), int(bev_coord[1])), 6, (255, 0, 120), 4)
 
         cmd_str = str(tick_data['command']).split('.')[-1]
         bev_panel_width = 460
