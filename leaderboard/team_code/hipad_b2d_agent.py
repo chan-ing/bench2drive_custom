@@ -698,7 +698,7 @@ class SparseAgent(autonomous_agent.AutonomousAgent):
         
         # breakpoint()
         steer_traj, throttle_traj, brake_traj, metadata_traj = self.pidcontroller.control_pid(
-            pred_temp_traj, None, ego_speed, target_point)
+            pred_temp_traj, pred_spat_traj, ego_speed, target_point)
         # breakpoint()
         if brake_traj < 0.05: brake_traj = 0.0
         if throttle_traj > brake_traj: brake_traj = 0.0
