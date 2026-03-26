@@ -66,7 +66,6 @@ class PIDController(object):
             waypoints (tensor): output of self.plan()
             speed (tensor): speedometer input
         '''
-        to_float64 = lambda x: float(np.asarray(x, dtype=np.float64))
 
         # iterate over vectors between predicted waypoints
         num_pairs = len(waypoints) - 1
@@ -109,7 +108,7 @@ class PIDController(object):
 
         angle = np.degrees(np.pi / 2 - np.arctan2(aim[1], aim[0])) / 90
         if aim[0] == 0 and aim[1] == 0:
-            angle = 0.0
+            angle = np.float64(0.0)
         angle_last = np.degrees(np.pi / 2 - np.arctan2(aim_last[1], aim_last[0])) / 90
         angle_target = np.degrees(np.pi / 2 - np.arctan2(target[1], target[0])) / 90
 
@@ -136,7 +135,7 @@ class PIDController(object):
         throttle = throttle if not brake else 0.0
 
         metadata = {
-            'speed': to_float64(speed),
+            'speed': float(speed.astype(np.float64)),
             'steer': float(steer),
             'throttle': float(throttle),
             'brake': float(brake),
@@ -146,14 +145,14 @@ class PIDController(object):
             'wp_1': tuple(waypoints[0].astype(np.float64)),
             'aim': tuple(aim.astype(np.float64)),
             'target': tuple(target.astype(np.float64)),
-            'desired_speed': to_float64(desired_speed),
-            'angle': to_float64(angle),
-            'angle_last': to_float64(angle_last),
-            'angle_target': to_float64(angle_target),
-            'angle_final': to_float64(angle_final),
-            'delta': to_float64(delta),
-            'aim_dist' : to_float64(self.aim_dist),
-            'best_norm': to_float64(best_norm),
+            'desired_speed': float(desired_speed.astype(np.float64)),
+            'angle': float(angle.astype(np.float64)),
+            'angle_last': float(angle_last.astype(np.float64)),
+            'angle_target': float(angle_target.astype(np.float64)),
+            'angle_final': float(angle_final.astype(np.float64)),
+            'delta': float(delta.astype(np.float64)),
+            'aim_dist' : float(self.aim_dist.astype(np.float64)),
+            'best_norm': float(best_norm.astype(np.float64)),
         }
 
         return steer, throttle, brake, metadata
