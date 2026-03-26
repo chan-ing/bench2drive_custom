@@ -286,3 +286,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# python tools/hc_route_excel.py -f /mnt/sda/HiP-AD-custom/evaluation/stage3_llava7b-official_residual_sw_dgx_no_modified_resume_26084
