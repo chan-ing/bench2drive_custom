@@ -580,8 +580,8 @@ class SparseAgent(autonomous_agent.AutonomousAgent):
         canbus_cmd[1:4] = ego_accel
         canbus_cmd[4:7] = angular_velocity
         canbus_cmd[7] = self.pid_metadata['steer'] if hasattr(self, 'pid_metadata') else 0.0
-        canbus_cmd[8:10] = target_point
-        canbus_cmd[10:12] = target_point_next
+        canbus_cmd[8:10] = target_point_next
+        canbus_cmd[10:12] = target_point
         canbus_cmd[12:18] = command_onehot
         inputs['canbus'] = canbus_cmd[:12]
         inputs['canbus_cmd'] = canbus_cmd[:18]
