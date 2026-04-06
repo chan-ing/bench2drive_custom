@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--base_route", default='bench2drive/leaderboard/data/bench2drive220.xml', type=str)
     parser.add_argument("--task_num", default=4, type=int)
-    parser.add_argument("--algo", default='splits16', type=str)
+    parser.add_argument("--algo", default='splits44', type=str)
     args = parser.parse_args()
 
     main(args.base_route, args.task_num, args.algo)

@@ -2,10 +2,12 @@
 # Must set CARLA_ROOT
 export WORK_DIR=/mnt/sda/HiP-AD-custom
 export CARLA_ROOT=/home/hc-5090/hc/code/carla_legacy
+# export CARLA_ROOT=/home/spalab/carla
 export CARLA_SERVER=${CARLA_ROOT}/CarlaUE4.sh
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI/carla
 export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.15-py3.10-linux-x86_64.egg
+# export PYTHONPATH=$PYTHONPATH:$CARLA_ROOT/PythonAPI/carla/dist/carla-0.9.15-py3.7-linux-x86_64.egg
 export PYTHONPATH=$PYTHONPATH:${WORK_DIR}/bench2drive
 export PYTHONPATH=$PYTHONPATH:${WORK_DIR}/bench2drive/leaderboard
 export PYTHONPATH=$PYTHONPATH:${WORK_DIR}/bench2drive/scenario_runner

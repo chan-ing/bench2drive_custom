@@ -1033,7 +1033,7 @@
          <weather cloudiness="60.0" fog_density="3.0" precipitation="60.0" precipitation_deposits="60.0" route_percentage="100" sun_altitude_angle="45.0" sun_azimuth_angle="-1.0" wetness="0.0" wind_intensity="60.0" />
       </weathers>
    </route>
-   <route id="23670" road_id="488" town="Town13">
+   <!-- <route id="23670" road_id="488" town="Town13">
       <waypoints>
          <position x="646.7" y="6000.0" z="164.9" />
          <position x="644.7" y="5999.9" z="164.9" />
@@ -1075,7 +1075,7 @@
          <weather cloudiness="100.0" fog_density="10.0" precipitation="50.0" precipitation_deposits="100.0" route_percentage="0" sun_altitude_angle="45.0" sun_azimuth_angle="-1.0" wetness="80.0" wind_intensity="80.0" />
          <weather cloudiness="100.0" fog_density="10.0" precipitation="50.0" precipitation_deposits="100.0" route_percentage="100" sun_altitude_angle="45.0" sun_azimuth_angle="-1.0" wetness="80.0" wind_intensity="80.0" />
       </weathers>
-   </route>
+   </route> -->
    <route id="23687" road_id="174" town="Town12">
       <waypoints>
          <position x="-2501.1" y="4243.9" z="365.1" />

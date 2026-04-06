@@ -1,10 +1,23 @@
+# python /mnt/sda/HiP-AD-custom/bench2drive/tools/hc_route_excel.py -f <json들이 있는 폴더>
+
 import argparse
 import glob
 import json
 import os
 import zipfile
+import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
 
+
+DEFAULT_ROUTES_FILE = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "leaderboard",
+        "data",
+        "bench2drive220.xml",
+    )
+)
 
 HEADERS = [
     "ScenarioID",
@@ -29,70 +42,117 @@ def is_success_record(record):
     return True
 
 
-def parse_save_name(record):
-    save_name = record.get("save_name", "")
-    parts = save_name.split("_")
-
-    if len(parts) >= 12 and parts[0] == "RouteScenario":
-        scenario_id = parts[1]
-        town = parts[3]
-        task = "_".join(parts[4:-7])
-        if task:
-            return scenario_id, town, task
-
+def extract_scenario_id(record):
     route_id = record.get("route_id", "")
     route_parts = route_id.split("_")
-    scenario_id = route_parts[1] if len(route_parts) >= 2 else ""
-    town = record.get("town_name", "")
+    if len(route_parts) >= 2 and route_parts[1]:
+        return route_parts[1]
 
-    scenario_name = record.get("scenario_name", "")
-    if "_" in scenario_name:
-        task = scenario_name.rsplit("_", 1)[0]
-    else:
-        task = scenario_name
+    save_name = record.get("save_name", "")
+    save_parts = save_name.split("_")
+    if len(save_parts) >= 2 and save_parts[0] == "RouteScenario":
+        return save_parts[1]
 
-    return scenario_id, town, task
-
-
-def scenario_sort_key(value):
-    try:
-        return (0, int(value))
-    except (TypeError, ValueError):
-        return (1, str(value))
+    return ""
 
 
-def collect_rows(folder_path):
-    file_paths = sorted(glob.glob(os.path.join(folder_path, "*.json")))
-    rows = []
+def normalize_task_name(name):
+    if "_" not in name:
+        return name
 
-    for file_path in file_paths:
-        if "merged.json" in file_path:
+    stem, suffix = name.rsplit("_", 1)
+    return stem if suffix.isdigit() else name
+
+
+def load_route_catalog(routes_file):
+    root = ET.parse(routes_file).getroot()
+    route_catalog = []
+    seen_route_ids = set()
+
+    for route in root.findall("route"):
+        scenario_id = str(route.attrib.get("id", "")).strip()
+        if not scenario_id:
             continue
 
+        if scenario_id in seen_route_ids:
+            raise ValueError(f"Duplicate route id found in {routes_file}: {scenario_id}")
+        seen_route_ids.add(scenario_id)
+
+        scenario = route.find("./scenarios/scenario")
+        task = ""
+        if scenario is not None:
+            task = scenario.attrib.get("type") or normalize_task_name(
+                scenario.attrib.get("name", "")
+            )
+
+        route_catalog.append(
+            {
+                "ScenarioID": scenario_id,
+                "Town": route.attrib.get("town", ""),
+                "Task": task,
+            }
+        )
+
+    if not route_catalog:
+        raise ValueError(f"No routes found in {routes_file}")
+
+    return route_catalog
+
+
+def record_preference_key(record):
+    return (
+        str(record.get("save_name", "")),
+        float(record.get("scores", {}).get("score_route", 0) or 0),
+        1 if is_success_record(record) else 0,
+    )
+
+
+def collect_rows(folder_path, routes_file):
+    file_paths = sorted(glob.glob(os.path.join(folder_path, "*.json")))
+    route_catalog = load_route_catalog(routes_file)
+    expected_route_ids = {row["ScenarioID"] for row in route_catalog}
+    records_by_route_id = {}
+
+    for file_path in file_paths:
         with open(file_path) as file:
             data = json.load(file)
 
         records = data.get("_checkpoint", {}).get("records", [])
         for record in records:
-            scenario_id, town, task = parse_save_name(record)
+            scenario_id = extract_scenario_id(record)
+            if scenario_id not in expected_route_ids:
+                continue
+
+            current_record = records_by_route_id.get(scenario_id)
+            if current_record is None or record_preference_key(record) > record_preference_key(
+                current_record
+            ):
+                records_by_route_id[scenario_id] = record
+
+    rows = []
+    missing_count = 0
+    for route_info in route_catalog:
+        record = records_by_route_id.get(route_info["ScenarioID"])
+        if record is None:
+            missing_count += 1
             rows.append(
                 {
-                    "ScenarioID": scenario_id,
-                    "Town": town,
-                    "Task": task,
-                    "Success": "O" if is_success_record(record) else "X",
-                    "Route Completed": record.get("scores", {}).get("score_route", 0),
+                    **route_info,
+                    "Success": "X",
+                    "Route Completed": 0,
                 }
             )
+            continue
 
-    rows.sort(
-        key=lambda row: (
-            scenario_sort_key(row["ScenarioID"]),
-            row["Town"],
-            row["Task"],
+        rows.append(
+            {
+                **route_info,
+                "Success": "O" if is_success_record(record) else "X",
+                "Route Completed": record.get("scores", {}).get("score_route", 0) or 0,
+            }
         )
-    )
-    return rows
+
+    return rows, missing_count
 
 
 def excel_column_name(index):
@@ -272,20 +332,23 @@ def main():
         default=None,
         help="Output .xlsx path (default: <folder>/hc_route_summary.xlsx)",
     )
+    parser.add_argument(
+        "-r",
+        "--routes-file",
+        default=DEFAULT_ROUTES_FILE,
+        help=f"Bench2Drive routes xml path (default: {DEFAULT_ROUTES_FILE})",
+    )
     args = parser.parse_args()
 
     output_path = args.output or os.path.join(args.folder, "hc_route_summary.xlsx")
-    rows = collect_rows(args.folder)
-
-    if not rows:
-        raise ValueError(f"No route records found in {args.folder}")
+    rows, missing_count = collect_rows(args.folder, args.routes_file)
 
     write_xlsx(output_path, rows)
-    print(f"Wrote {len(rows)} rows to {output_path}")
+    print(
+        f"Wrote {len(rows)} rows to {output_path} "
+        f"(missing routes filled with zero score: {missing_count})"
+    )
 
 
 if __name__ == "__main__":
     main()
-
-
-# python tools/hc_route_excel.py -f /mnt/sda/HiP-AD-custom/evaluation/stage3_llava7b-official_residual_sw_dgx_no_modified_resume_26084
